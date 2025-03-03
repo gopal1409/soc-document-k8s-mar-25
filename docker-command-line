@@ -25,3 +25,19 @@ cf7dcf72ebfa   nginx     "/docker-entrypoint.…"   4 seconds ago    Up 3 second
 docker ps
 docker ps -a
 ###ps -a will show all the running and stopped container
+##container vs process id 
+ 46  docker container run --name mongo -d mongo
+   47  docker ps
+#check the mongo db process id
+   48  docker top mongo
+   49  ps aux
+###kindly replace the mongo db container process id 
+   50  docker top mongo
+   51  kill -9 13444
+   52  docker ps
+##docker ps -a will show that mongo db is in exit state
+   54  docker ps -a
+#if you want to start or stop a container
+   55  docker start mongo
+   56  docker ps
+   57  docker stop mongo
