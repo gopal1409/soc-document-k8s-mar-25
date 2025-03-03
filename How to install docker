@@ -1,0 +1,8 @@
+#to install docker you need to be a root user 
+sudo -
+###to install docker complete the process from the docker documenation
+https://docs.docker.com/engine/install/ubuntu/
+#complete the step 1 and 2
+##after that 
+docker --version 
+##this will show the docker version installed 
