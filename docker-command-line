@@ -128,7 +128,7 @@ lets check the efect in the path an employee database is created or not
 
   132  docker rm db
 #we will create the database with new version of my mysq 
-  133  docker container run -d --name db -e MYSQL_RANDOM_ROOT_PASSWORD=true -v mysql-db:/var/lib/mysql mysql:8.0.41-debian
+  133  docker container run -d --name db -e MYSQL_RANDOM_ROOT_PASSWORD=true -v mysql-db:/var/lib/mysql mysql:8.0-debian
   134  docker ps
 ####lets login isnide the new database
 docker logs db
