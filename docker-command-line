@@ -1,0 +1,5 @@
+20  docker container run --publish 80:80 --detach nginx
+   21  docker ps
+   22  docker images
+##check the cotainer is running or not 
+  curl localhost
