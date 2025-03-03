@@ -41,3 +41,23 @@ docker ps -a
    55  docker start mongo
    56  docker ps
    57  docker stop mongo
+#docker networking 
+ 81  docker network ls
+  #we will create a custom network 
+docker network create my_app_net
+##once we create a custom network check the ip address of the custom network
+   83  docker network inspect my_app_net
+##now we will create two container on this custom network 
+86  docker run -d --name my_nginx --network my_app_net nginx
+   87  docker run -d --name new_nginx --network my_app_net nginx
+   88  docker ps
+   89  docker network ls
+#this will show that both the contianer are in same network 
+   90  docker network inspect my_app_net
+##if they are in same network they should any how talk to each other 
+ 94  docker container exec -it my_nginx curl new_nginx
+   95  docker container exec -it new_nginx curl my_nginx
+
+
+
+
