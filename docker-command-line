@@ -57,7 +57,85 @@ docker network create my_app_net
 ##if they are in same network they should any how talk to each other 
  94  docker container exec -it my_nginx curl new_nginx
    95  docker container exec -it new_nginx curl my_nginx
+###volume in contianer 
+root@ip-172-31-97-27:~# docker container run -d --name db -e MYSQL_RANDOM_ROOT_PASSWORD=true -v mysql-db:/var/lib/mysql mysql:8.0-debian
+d6e3cec60ca15a688d2fb9481e02a1fb7b4b01aba17f628829501e0f177d8758
+root@ip-172-31-97-27:~# docker ps
+CONTAINER ID   IMAGE              COMMAND                  CREATED             STATUS             PORTS                                 NAMES
+d6e3cec60ca1   mysql:8.0-debian   "docker-entrypoint.s…"   6 seconds ago       Up 5 seconds       3306/tcp, 33060/tcp                   db
+##once your database is crated lets see the volumes path in your local 
+root@ip-172-31-97-27:~# docker volume ls
+DRIVER    VOLUME NAME
+local     96b9f27b2a9334eb0340fd568a71c956a2ce48c972629abd8ee7851d503748e0
+local     593f2d1d437a9451efe281fdb6bb1635173b0914644151445b56639903c8daae
+local     13049f288f3364ce57fd58a1954377fd99f0c3611e44e775b73527e8d59dbca7
+local     mysql-db
+root@ip-172-31-97-27:~# docker volume inspect mysql-db
+[
+    {
+        "CreatedAt": "2025-03-03T11:05:56Z",
+        "Driver": "local",
+        "Labels": null,
+        "Mountpoint": "/var/lib/docker/volumes/mysql-db/_data",
+        "Name": "mysql-db",
+        "Options": null,
+        "Scope": "local"
+    }
+]
+root@ip-172-31-97-27:~# ls /var/lib/docker/volumes/mysql-db/_data
+'#ib_16384_0.dblwr'  '#innodb_temp'   binlog.000002   ca.pem            ib_buffer_pool   mysql                private_key.pem   server-key.pem   undo_002
+'#ib_16384_1.dblwr'   auto.cnf        binlog.index    client-cert.pem   ibdata1          mysql.ibd            public_key.pem    sys
+'#innodb_redo'        binlog.000001   ca-key.pem      client-key.pem    ibtmp1           performance_schema   server-cert.pem   undo_001
+root@ip-172-31-97-27:~#
 
+###once you go to volume path lets login to the database and create a new database 
+root@ip-172-31-97-27:~# docker logs db
+##from the logs check this line contains the password 
+2025-03-03 11:06:08+00:00 [Note] [Entrypoint]: GENERATED ROOT PASSWORD: a3AN+pgIHAK7REDBk8ZL2vPRtATMzzDA
+
+##this will give me the root password 
+#lets login inside the container -it is interactive terminal
+root@ip-172-31-97-27:~# docker exec -it db  bash
+root@d6e3cec60ca1:/#
+##once you login 
+
+mysql -u root -p 
+###paste the password 
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+4 rows in set (0.00 sec)
+
+mysql> create database employee;
+Query OK, 1 row affected (0.01 sec)
+
+mysql>
+###then do exit
+exit
+exit
+
+lets check the efect in the path an employee database is created or not 
+128  ls /var/lib/docker/volumes/mysql-db/_data
+##you can see the employee db 
+###lets delete the database
+  129  docker stop db
+
+  132  docker rm db
+#we will create the database with new version of my mysq 
+  133  docker container run -d --name db -e MYSQL_RANDOM_ROOT_PASSWORD=true -v mysql-db:/var/lib/mysql mysql:8.0.41-debian
+  134  docker ps
+####lets login isnide the new database
+docker logs db
+docker exec -it db bash
+mysql -u root -p
+show databases;
+##this will show the employee db
 
 
 
