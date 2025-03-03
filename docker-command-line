@@ -19,3 +19,5 @@ cf7dcf72ebfad0037da8178500c383f18f0124603613726057122247bf91ff62
 root@ip-172-31-97-27:~# docker ps
 CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS                                 NAMES
 cf7dcf72ebfa   nginx     "/docker-entrypoint.…"   4 seconds ago    Up 3 seconds    0.0.0.0:83->80/tcp, [::]:83->80/tcp   webhost
+##lets try to understand the detach mode 
+ docker container run --publish 84:80 nginx
