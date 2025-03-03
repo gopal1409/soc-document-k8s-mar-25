@@ -3,3 +3,14 @@
    22  docker images
 ##check the cotainer is running or not 
   curl localhost
+#this will show the download images
+26  docker images
+#if the image is already there it will not download agains
+   27  docker container run --publish 81:80 --detach nginx
+   #the below commadn will show there are two docker container running multiple nginx web server
+   30  docker ps
+####this time i ll download a different image it will be shown that it is downloading
+   31  docker container run --publish 82:80 --detach httpd
+   32  docker ps
+   33  curl localhost:82
+
