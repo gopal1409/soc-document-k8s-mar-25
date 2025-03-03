@@ -21,3 +21,7 @@ CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS       
 cf7dcf72ebfa   nginx     "/docker-entrypoint.…"   4 seconds ago    Up 3 seconds    0.0.0.0:83->80/tcp, [::]:83->80/tcp   webhost
 ##lets try to understand the detach mode 
  docker container run --publish 84:80 nginx
+##lets check the contianer press ctrl c
+docker ps
+docker ps -a
+###ps -a will show all the running and stopped container
