@@ -12,4 +12,22 @@ sudo -i
 ##press ctrl c
 ####then 
 cd ..
-  
+  #lets convert the app into an container based image 
+
+ 198  vi dockerfile
+
+FROM openjdk:22
+WORKDIR /app
+COPY ./target/*.jar /app/hello.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","/app/hello.jar"]
+##lets build it 
+  199  docker build -t helloapp .
+root@ip-172-31-97-27:~/spring-hello1# docker images
+REPOSITORY   TAG             IMAGE ID       CREATED         SIZE
+helloapp     latest          cfe12853dc4d   4 minutes ago   575MB
+############once you can see your image spin up an container 
+  207  docker run -d -p 81:8080 helloapp
+  208  docker ps
+  209  curl localhost:81/hello
+####you can check the output from the browser 
