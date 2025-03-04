@@ -1,0 +1,15 @@
+sudo -i
+   179  apt install default-jdk
+  180  apt install maven
+  181  git clone https://github.com/gopal1409/spring-hello1.git
+  182  cd spring-hello1/
+  183  mvn clean package
+  184  cd target/
+  185  ls
+  186  java -jar spring-boot-2-hello-world-1.0.2-SNAPSHOT.jar
+####check the application is running from the browser or not put your machine dns name
+  http://lab-as-14371.lc.cl-labs.springpeople.com:8080/hello
+##press ctrl c
+####then 
+cd ..
+  
