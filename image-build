@@ -31,3 +31,25 @@ helloapp     latest          cfe12853dc4d   4 minutes ago   575MB
   208  docker ps
   209  curl localhost:81/hello
 ####you can check the output from the browser 
+#multi build in maven 
+root@ip-172-31-97-27:~/spring-hello1# cat dockerfile
+#catch maven dependency as an intermediate docker image
+FROM maven as dep
+COPY pom.xml /build/
+WORKDIR /build/
+RUN mvn --batch-mode dependency:go-offline dependency:resolve-plugins
+
+#build the app using maven and cached dependecy
+
+FROM maven as build
+COPY --from=dependencies /root/.m2 /root/.m2
+COPY pom.xml /build/
+copy src /build/src
+WORKDIR /build
+RUN mvn -P dockerfile --bathc-mode --fail-fast package
+#this is the stage which is running the application
+
+FROM openjdk:22  as runtime
+COPY --from=build /build/target/*.jar ./application.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","./application.jar"]
