@@ -1,0 +1,28 @@
+##in the first machine we will download all the images required to run as master 
+kubeadm config images pull
+##3then to make the machine as master 
+kubeadm init
+#########################
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+###########################################
+root@k8smaster:~# kubectl get nodes
+NAME        STATUS     ROLES           AGE   VERSION
+k8smaster   NotReady   control-plane   83s   v1.32.2
+root@k8smaster:~#
+###this will show master node is there but in not ready state it is ok we need to install cni plugin
+#we will join the worker nodes to the master 
+kubeadm token create --print-join-command
+##the output you need to copy the same and paste it in worker node 
+##then go back to master node 
+kubectl get nodes 
+###################
+root@k8smaster:~# kubectl get nodes
+NAME        STATUS     ROLES           AGE     VERSION
+k8smaster   NotReady   control-plane   3m24s   v1.32.2
+k8snode     NotReady   <none>          43s     v1.32.2
+k8snode1    NotReady   <none>          16s     v1.32.2
+
