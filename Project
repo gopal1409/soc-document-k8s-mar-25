@@ -162,4 +162,24 @@ mysql-9b5968599-nrrv6               1/1     Running   0          4m23s   192.168
 sudo -i
 ls /mnt/data 
 check the usedmgmt folder is there or not
+#lets expose mysql as cluster ip
+ 481  vi mysqlsvc.yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  selector:
+    app: mysql
+  ports:
+    - port: 3306
+  clusterIP: None
+    
+
+  482  kubectl apply -f mysqlsvc.yml
+  483  kubectl get svc
+#describe svc mysql show that it is mapped to your mysql pod 
+  484  kubectl describe svc mysql
+  485  kubectl get pod -o wide
+
 
