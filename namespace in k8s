@@ -1,0 +1,34 @@
+root@k8smaster:~# kubectl get pod --namespace=kube-system
+NAME                                       READY   STATUS    RESTARTS      AGE
+calico-kube-controllers-5745477d4d-x5qvg   1/1     Running   2 (44m ago)   16h
+calico-node-c446f                          1/1     Running   1 (44m ago)   16h
+calico-node-dctzw                          1/1     Running   1 (44m ago)   16h
+calico-node-ndp8l                          1/1     Running   1 (44m ago)   16h
+coredns-668d6bf9bc-69f69                   1/1     Running   1 (44m ago)   17h
+coredns-668d6bf9bc-bdbdf                   1/1     Running   1 (44m ago)   17h
+etcd-k8smaster                             1/1     Running   1 (44m ago)   17h
+kube-apiserver-k8smaster                   1/1     Running   1 (44m ago)   17h
+kube-controller-manager-k8smaster          1/1     Running   1 (44m ago)   17h
+kube-proxy-lht4f                           1/1     Running   1 (44m ago)   17h
+kube-proxy-phd5h                           1/1     Running   1 (44m ago)   17h
+kube-proxy-rg5qz                           1/1     Running   1 (44m ago)   17h
+kube-scheduler-k8smaster                   1/1     Running   1 (44m ago)   17h
+root@k8smaster:~# kubectl create ns dev
+namespace/dev created
+root@k8smaster:~# kubectl get ns
+NAME              STATUS   AGE
+default           Active   17h
+dev               Active   4s
+kube-node-lease   Active   17h
+kube-public       Active   17h
+kube-system       Active   17h
+root@k8smaster:~# kubectl describe ns dev
+Name:         dev
+Labels:       kubernetes.io/metadata.name=dev
+Annotations:  <none>
+Status:       Active
+
+No resource quota.
+
+No LimitRange resource.
+root@k8smaster:~#
