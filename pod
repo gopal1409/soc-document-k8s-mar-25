@@ -19,3 +19,10 @@ my-first-pod   0/1     ContainerCreating   0          7s
 root@k8smaster:~# kubectl get pod
 NAME           READY   STATUS    RESTARTS   AGE
 my-first-pod   1/1     Running   0          11s
+###################################
+  363  kubectl get pod
+#when you describe the pod look into the event logs
+  365  kubectl describe pod my-first-pod
+  366  kubectl get nodes
+#to get more information about your pod -o wide
+  367  kubectl get pod -o wide
