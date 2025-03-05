@@ -70,4 +70,96 @@ root@k8smaster:~# kubectl get secret
 NAME        TYPE     DATA   AGE
 db-secret   Opaque   1      4s
 root@k8smaster:~# kubectl describe secret db-secret
+##lets deploy the mysql database 
+vi mysql.yml
+#######################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: mysql
+  name: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - image: mysql:5.6
+        name: mysql
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: password
+        ports:
+        - containerPort: 3306
+        volumeMounts: #this is inside your container 
+          - name: mysql-storage
+            mountPath: /var/lib/mysql #this is the storage path inside your cotnainer 
+          - name: db-script #configmap 1mb of storage 
+            mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: mysql-storage #whatever name you have put inside your container should match with you vbolume name
+          persistentVolumeClaim:
+            claimName: task-pv-claim
+        - name: db-script
+          configMap:
+            name: usermanagemet-dbcreation-script
+        
+       #################
+root@k8smaster:~# kubectl apply -f mysql.yml
+deployment.apps/mysql created
+root@k8smaster:~# kubectl get deploy
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+mysql              0/1     1            0           7s
+nginx-deployment   5/5     5            5           4h42m
+root@k8smaster:~# kubectl get deploy
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+mysql              1/1     1            1           10s
+nginx-deployment   5/5     5            5           4h42
+##3lets look intop the pod 
+kubectl describe deploy mysql 
+##check all are attached likle pvc configmap and secret
+#lets login inside the database
+root@k8smaster:~# kubectl get pod
+NAME                                READY   STATUS    RESTARTS   AGE
+
+mysql-9b5968599-nrrv6               1/1     Running   0          91s
+##once you login 
+root@k8smaster:~# kubectl exec -it mysql-9b5968599-nrrv6 -- /bin/bash
+#password dbpassword11
+root@mysql-9b5968599-nrrv6:/# mysql -u root -p
+Enter password:
+#check the database is created or not 
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| usermgmt           |
+#then do 
+exit 
+exit
+###after the exit 
+root@k8smaster:~# kubectl get pod -o wide
+NAME                                READY   STATUS    RESTARTS   AGE     IP                NODE       NOMINATED NODE   READINESS GATES
+
+mysql-9b5968599-nrrv6               1/1     Running   0          4m23s   192.168.249.15    k8snode1   <none>           <none>
+#mysql pod is running in k8snode1
+##login to the node machine 
+sudo -i
+ls /mnt/data 
+check the usedmgmt folder is there or not
 
