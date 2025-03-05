@@ -20,12 +20,17 @@
   420  kubectl describe rs nginx-deployment-8689c79f
 
 ##rollback to previous release
+#this rollout status when we update with a new version
  428  kubectl rollout status deployment nginx-deployment
+#this will show how many changes i have in history 
   429  kubectl get rs
 
   431  kubectl rollout history deployment nginx-deployment
+#in revision one you want to see which image i have i can see the same 
   432  kubectl rollout history deployment nginx-deployment --revision=1
   433  kubectl rollout history deployment nginx-deployment --revision=2
+#undo will move to the previous version
   434  kubectl rollout undo deployment nginx-deployment
+#i have changes multiple time i want to go to a particular revioons
 kubectl rollout undo deployment nginx-deployment --to-revision=2
   435  kubectl get rs
