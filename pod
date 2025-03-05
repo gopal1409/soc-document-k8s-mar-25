@@ -1,0 +1,21 @@
+root@k8smaster:~# vi pod.yml
+
+apiVersion: v1
+kind: Pod #this is the name of the api
+metadata:
+  name: my-first-pod #once the pod get created i need to define the name of the pod 
+spec: #this is the specification of the pod 
+  containers: #in the specification we define the container
+  - name: nginx
+    image: nginx:1.14.2 #image 
+    ports:
+    - containerPort: 80 #in which port number it is going to run 
+
+root@k8smaster:~# kubectl apply -f pod.yml
+pod/my-first-pod created
+root@k8smaster:~# kubectl get pod
+NAME           READY   STATUS              RESTARTS   AGE
+my-first-pod   0/1     ContainerCreating   0          7s
+root@k8smaster:~# kubectl get pod
+NAME           READY   STATUS    RESTARTS   AGE
+my-first-pod   1/1     Running   0          11s
