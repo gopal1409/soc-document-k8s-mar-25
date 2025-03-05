@@ -26,3 +26,11 @@ my-first-pod   1/1     Running   0          11s
   366  kubectl get nodes
 #to get more information about your pod -o wide
   367  kubectl get pod -o wide
+#####lets create the pod using command line 
+ 373  kubectl run my-helloo-app --image=gopal1409/helloapp --port=8080 --dry-run=client -o yaml
+  374  kubectl run my-helloo-app --image=gopal1409/helloapp --port=8080 --dry-run=client -o yaml > pod2.yml
+  375  cat pod2.yml
+  376  kubectl apply -f pod2.yml
+  377  kubectl get pod
+  378  kubectl describe pod my-helloo-app
+#####replace the image with your image from the hub.docker.com
