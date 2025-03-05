@@ -34,3 +34,10 @@ my-first-pod   1/1     Running   0          11s
   377  kubectl get pod
   378  kubectl describe pod my-helloo-app
 #####replace the image with your image from the hub.docker.com
+root@k8smaster:~# kubectl get pod
+NAME            READY   STATUS    RESTARTS   AGE
+my-first-pod    1/1     Running   0          31m
+my-helloo-app   1/1     Running   0          8m19s
+root@k8smaster:~# kubectl exec -it my-helloo-app -- /bin/bash
+bash-5.1# curl localhost:8080/hello
+Hello, World! version2bash-5.1#
