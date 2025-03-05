@@ -39,3 +39,35 @@ root@k8smaster:~# kubectl get pv
 NAME             CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                   STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
 task-pv-volume   10Gi       RWO            Retain           Bound    default/task-pv-claim                  <unset>                          6m3s
 
+#lets create the configmap 
+ 456  vi configmap.yml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: usermanagemet-dbcreation-script
+data:
+  mysql_usermgmt.sql: |-
+    DROP DATABASE IF EXISTS usermgmt;
+    CREATE DATABASE usermgmt;
+
+  457  kubectl apply -f configmap.yml
+  458  kubectl get configmap
+  459  kubectl describe configmap usermanagemet-dbcreation-script
+
+#lets create the secret 
+root@k8smaster:~# vi secret.yml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+type: Opaque 
+data:
+  password: ZGJwYXNzd29yZDEx
+
+root@k8smaster:~# kubectl apply -f secret.yml
+secret/db-secret created
+root@k8smaster:~# kubectl get secret
+NAME        TYPE     DATA   AGE
+db-secret   Opaque   1      4s
+root@k8smaster:~# kubectl describe secret db-secret
+
