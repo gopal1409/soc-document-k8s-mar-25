@@ -1,0 +1,7 @@
+407  kubectl expose deploy nginx-deployment --port=80 --type=NodePort --name=nginx-svc
+  408  kubectl get svc
+  ###copy the node machine name : port number in browser you will access your appliction
+  409  kubectl get pod -o wide
+  ##check the ip address of all the pod 
+  ##when we describe the service you will see all the endpoinr is of your all the three pod
+  410  kubectl describe svc nginx-svc
