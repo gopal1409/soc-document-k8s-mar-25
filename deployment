@@ -1,0 +1,37 @@
+  385  vi dep.yml
+    
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3 #this will create three pod
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+
+  386  kubectl apply -f dep.yml
+          #once you create the deployment you can verifyt he same 
+  387  kubectl get deploy
+          #describe command will give more details about the deployment 
+  388  kubectl describe deploy nginx-deployment
+          #check all the pod against your deployment 
+  389  kubectl get pod
+          #delete one of the pod you need replace the pod name with your own pod name
+  390  kubectl delete pod nginx-deployment-647677fc66-2tvt2
+          ##once delete you can check the same a replace has come 
+  391  kubectl get pod
+          ##3the below command will show that all this pod are running in different node
+  392  kubectl get pod -o wide
