@@ -35,3 +35,30 @@ spec:
   391  kubectl get pod
           ##3the below command will show that all this pod are running in different node
   392  kubectl get pod -o wide
+##defination 
+#image #port
+#kubectl apply -f dep.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec: #this is the specification of the deployment in specification we have three things
+#replicas selector template
+  replicas: 3 #this will create three pod
+  selector: #spec.selctor.matchlABEL IT is like an match expressio
+    matchLabels:
+      app: nginx #all the pod will have a label app: nbginx nginx-deployment.spec.label
+  template: #template will contains the image defination
+    metadata:
+      labels: #to map the template with your pod 
+        app: nginx #same label
+    spec: #this template has a spec which contains your container image
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+#####
