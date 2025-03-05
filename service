@@ -34,3 +34,11 @@
 #i have changes multiple time i want to go to a particular revioons
 kubectl rollout undo deployment nginx-deployment --to-revision=2
   435  kubectl get rs
+##autoscaling 
+root@k8smaster:~# kubectl autoscale deployment nginx-deployment --min=5 --max=15 --cpu-percent=80
+horizontalpodautoscaler.autoscaling/nginx-deployment autoscaled
+root@k8smaster:~# kubectl get hpa
+NAME               REFERENCE                     TARGETS              MINPODS   MAXPODS   REPLICAS   AGE
+nginx-deployment   Deployment/nginx-deployment   cpu: <unknown>/80%   5         15        0          5s
+root@k8smaster:~#
+
