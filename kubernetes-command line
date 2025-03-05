@@ -1,0 +1,34 @@
+##we need to verify all the master component are running as containers
+###lets check the master compoinent using docker command
+docker ps
+#this will show nothing 
+root@k8smaster:~# kubectl get pod -A
+NAMESPACE     NAME                                       READY   STATUS    RESTARTS      AGE
+kube-system   calico-kube-controllers-5745477d4d-x5qvg   1/1     Running   2 (29m ago)   16h
+kube-system   calico-node-c446f                          1/1     Running   1 (29m ago)   16h
+kube-system   calico-node-dctzw                          1/1     Running   1 (29m ago)   16h
+kube-system   calico-node-ndp8l                          1/1     Running   1 (29m ago)   16h
+kube-system   coredns-668d6bf9bc-69f69                   1/1     Running   1 (29m ago)   16h
+kube-system   coredns-668d6bf9bc-bdbdf                   1/1     Running   1 (29m ago)   16h
+kube-system   etcd-k8smaster                             1/1     Running   1 (29m ago)   16h
+kube-system   kube-apiserver-k8smaster                   1/1     Running   1 (29m ago)   16h
+kube-system   kube-controller-manager-k8smaster          1/1     Running   1 (29m ago)   16h
+kube-system   kube-proxy-lht4f                           1/1     Running   1 (29m ago)   16h
+kube-system   kube-proxy-phd5h                           1/1     Running   1 (29m ago)   16h
+kube-system   kube-proxy-rg5qz                           1/1     Running   1 (29m ago)   16h
+kube-system   kube-scheduler-k8smaster                   1/1     Running   1 (29m ago)   16h
+
+#you can see all the master componet are running as pod 
+root@k8smaster:~# crictl ps
+WARN[0000] Config "/etc/crictl.yaml" does not exist, trying next: "/usr/bin/crictl.yaml"
+WARN[0000] runtime connect using default endpoints: [unix:///run/containerd/containerd.sock unix:///run/crio/crio.sock unix:///var/run/cri-dockerd.sock]. As the default settings are now deprecated, you should set the endpoint instead.
+WARN[0000] Image connect using default endpoints: [unix:///run/containerd/containerd.sock unix:///run/crio/crio.sock unix:///var/run/cri-dockerd.sock]. As the default settings are now deprecated, you should set the endpoint instead.
+CONTAINER           IMAGE               CREATED             STATE               NAME                      ATTEMPT             POD ID              POD                                 NAMESPACE
+4278d56505f0e       feb26d4585d68       30 minutes ago      Running             calico-node               1                   beb0a7fd0a133       calico-node-ndp8l                   kube-system
+89d834f094cfa       f1332858868e1       30 minutes ago      Running             kube-proxy                1                   d55a0731ab7bd       kube-proxy-lht4f                    kube-system
+734abe3f9ab7d       d8e673e7c9983       31 minutes ago      Running             kube-scheduler            1                   029fbef7a63b9       kube-scheduler-k8smaster            kube-system
+75db54bbcc7bf       a9e7e6b294baf       31 minutes ago      Running             etcd                      1                   d83ccc1987439       etcd-k8smaster                      kube-system
+c8953c4f5a77f       85b7a174738ba       31 minutes ago      Running             kube-apiserver            1                   c365a7ca9c2fd       kube-apiserver-k8smaster            kube-system
+6f6ef78b0bbe2       b6a454c5a800d       31 minutes ago      Running             kube-controller-manager   1                   f56c6ea98a4c9       kube-controller-manager-k8smaster   kube-system
+#################
+crictl images
