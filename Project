@@ -179,7 +179,28 @@ spec:
   482  kubectl apply -f mysqlsvc.yml
   483  kubectl get svc
 #describe svc mysql show that it is mapped to your mysql pod 
+#lets verify the dns resultion of mysql server
+
+  490  kubectl get svc
   484  kubectl describe svc mysql
   485  kubectl get pod -o wide
 
+#this will create a dns pod inside your kubernetes cluster
+487  kubectl apply -f https://k8s.io/examples/admin/dns/dnsutils.yaml
+  488  kubectl get pods dnsutils
+  489  kubectl exec -i -t dnsutils -- nslookup kubernetes.default
+root@k8smaster:~# kubectl get svc
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+kubernetes   ClusterIP   10.96.0.1        <none>        443/TCP        24h
+mysql        ClusterIP   None             <none>        3306/TCP       4m50s
+nginx-svc    NodePort    10.106.188.171   <none>        80:31613/TCP   4h30m
+#if i do dns rexsultion of mysql pod it take me to the pod ip address means the service is doing the dns resultion
+root@k8smaster:~# kubectl exec -i -t dnsutils -- nslookup mysql.default
+Server:         10.96.0.10
+Address:        10.96.0.10#53
+
+Name:   mysql.default.svc.cluster.local
+Address: 192.168.249.15
+
+root@k8smaster:~#
 
