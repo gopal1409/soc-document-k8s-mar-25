@@ -1,0 +1,41 @@
+##lets create an pertsistent volume
+root@k8smaster:~# vi pv.yml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: task-pv-volume
+spec:
+  capacity:
+    storage: 10Gi #this is thin provisiuoing
+  volumeMode: Filesystem #it will look for the file system
+  accessModes:
+    - ReadWriteOnce #read # readwritemany
+  hostPath:
+    path: /mnt/data
+root@k8smaster:~# kubectl apply -f pv.yml
+persistentvolume/task-pv-volume created
+##check the status of your pv it will show that status is available pv is like an resource to your k8s cluster
+root@k8smaster:~# kubectl get pv
+NAME             CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM   STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+task-pv-volume   10Gi       RWO            Retain           Available                          <unset>                          5s
+root@k8smaster:~#
+#lets create the pvc . this pvc only can be mapped to your pod
+vi pvc.yml
+#######################
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: task-pv-claim
+spec:
+  resources:
+    requests:
+      storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+root@k8smaster:~# kubectl apply -f pvc.yml
+persistentvolumeclaim/task-pv-claim created
+root@k8smaster:~# kubectl get pv
+NAME             CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                   STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+task-pv-volume   10Gi       RWO            Retain           Bound    default/task-pv-claim                  <unset>                          6m3s
+
