@@ -5,3 +5,17 @@
   ##check the ip address of all the pod 
   ##when we describe the service you will see all the endpoinr is of your all the three pod
   410  kubectl describe svc nginx-svc
+#############
+#we will update the image with a new image which show the system information
+ 414  kubectl set image deployment nginx-deployment nginx=nulldevil/phpsysinfo
+  415  kubectl get deploy
+  416  kubectl describe deploy nginx-deployment
+####refresh the browser page it will show the poh systinfo with lisneing ip address of the pod
+##belwo command will show all the pod with the ip addrees
+  417  kubectl get pod -o wide
+  418  kubectl get rs
+###now you will have two rs 
+#change the rs id you will see which image it is 
+  419  kubectl describe rs nginx-deployment-647677fc66
+  420  kubectl describe rs nginx-deployment-8689c79f
+
