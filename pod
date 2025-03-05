@@ -41,3 +41,5 @@ my-helloo-app   1/1     Running   0          8m19s
 root@k8smaster:~# kubectl exec -it my-helloo-app -- /bin/bash
 bash-5.1# curl localhost:8080/hello
 Hello, World! version2bash-5.1#
+#to come out of the container 
+exit
