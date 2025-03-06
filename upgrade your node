@@ -12,4 +12,5 @@
   674  kubectl get pod -o wide
 ####lets uncordon the worker node
 kubectl uncordon k8snode
-kubectl upgrade node
+#run this in master node to upgrade all the worker node
+kubeadm upgrade node
