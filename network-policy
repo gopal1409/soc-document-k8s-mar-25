@@ -44,4 +44,93 @@ root@k8smaster:~#
   723  kubectl -n prod exec frontend -- curl backend
   724  kubectl -n prod exec backend -- curl frontend
 ##if you verify the communicate both of them are blocked
+#lets create an exception that frontend can intiate traffic to backend
+root@k8smaster:~# vi frontend.yml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-deny
+  namespace: prod #when you create a network policy it will always be on a particular namespace
+spec:
+  podSelector:
+    matchLabels:
+      run: frontend
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          run: backend
+
+
+root@k8smaster:~# kubectl apply -f frontend.yml
+networkpolicy.networking.k8s.io/frontend-deny created
+root@k8smaster:~# kubectl -n prod describe networkpolicy frontend
+Name:         frontend-deny
+Namespace:    prod
+Created on:   2025-03-06 11:20:44 +0000 UTC
+Labels:       <none>
+Annotations:  <none>
+Spec:
+  PodSelector:     run=frontend
+  Not affecting ingress traffic
+  Allowing egress traffic:
+    To Port: <any> (traffic allowed to all ports)
+    To:
+      PodSelector: run=backend
+  Policy Types: Egress
+
+root@k8smaster:~#
+###backend should accept the connection.
+root@k8smaster:~# vi backend.yml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-deny
+  namespace: prod #when you create a network policy it will always be on a particular namespace
+spec:
+  podSelector:
+    matchLabels:
+      run: backend
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          run: frontend
+
+
+root@k8smaster:~# kubectl apply -f backend.yml
+networkpolicy.networking.k8s.io/backend-deny created
+root@k8smaster:~#  kubectl -n prod describe networkpolicy backend
+Name:         backend-deny
+Namespace:    prod
+Created on:   2025-03-06 11:24:00 +0000 UTC
+Labels:       <none>
+Annotations:  <none>
+Spec:
+  PodSelector:     run=backend
+  Allowing ingress traffic:
+    To Port: <any> (traffic allowed to all ports)
+    From:
+      PodSelector: run=frontend
+  Not affecting egress traffic
+  Policy Types: Ingress
+###now 100% backend frontend want to intiate connection to backend it should work
+root@k8smaster:~# kubectl -n prod exec frontend -- curl backend
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0^C
+###it will not work with the naming convetion but witht he ip address of backend it will work try with ip and change the ip 
+root@k8smaster:~# kubectl -n prod get pod -o wide
+NAME       READY   STATUS    RESTARTS   AGE   IP                NODE      NOMINATED NODE   READINESS GATES
+backend    1/1     Running   0          24m   192.168.145.223   k8snode   <none>           <none>
+frontend   1/1     Running   0          24m   192.168.145.222   k8snode   <none>           <none>
+root@k8smaster:~# kubectl -n prod exec frontend -- curl 192.168.145.223
+
+
+
+
 
