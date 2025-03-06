@@ -8,3 +8,40 @@
   723  kubectl -n prod exec frontend -- curl backend
   724  kubectl -n prod exec backend -- curl frontend
 ##it shows that internally inside the namespace or external to your namespace also they can communicate with each other
+#lets create the deny policy 
+root@k8smaster:~# vi deny.yml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: prod #when you create a network policy it will always be on a particular namespace
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+
+root@k8smaster:~# kubectl apply -f deny.yml
+networkpolicy.networking.k8s.io/default-deny created
+root@k8smaster:~# kubectl -n prod get networkpolicy
+NAME           POD-SELECTOR   AGE
+default-deny   <none>         18s
+root@k8smaster:~# kubectl -n prod describe networkpolicy default-deny
+Name:         default-deny
+Namespace:    prod
+Created on:   2025-03-06 11:14:34 +0000 UTC
+Labels:       <none>
+Annotations:  <none>
+Spec:
+  PodSelector:     <none> (Allowing the specific traffic to all pods in this namespace)
+  Allowing ingress traffic:
+    <none> (Selected pods are isolated for ingress connectivity)
+  Allowing egress traffic:
+    <none> (Selected pods are isolated for egress connectivity)
+  Policy Types: Ingress, Egress
+root@k8smaster:~#
+####################
+  723  kubectl -n prod exec frontend -- curl backend
+  724  kubectl -n prod exec backend -- curl frontend
+##if you verify the communicate both of them are blocked
+
