@@ -1,0 +1,59 @@
+##lets deploy the dashboard plugin of k8s
+   506  kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+##if you look into the pod there are two pod one for dashboard another for metrics collector 
+  507  kubectl get pod -A
+
+  kubernetes-dashboard   dashboard-metrics-scraper-5bd45c9dd6-xh67h   1/1     Running   0              17s
+kubernetes-dashboard   kubernetes-dashboard-79cbcf9fb6-mwmhq        1/1     Running   0              17s
+  ###once you see it is running i need to expose the service of the kubernetes dashboard
+  root@k8smaster:~# kubectl get svc -A
+  #you will see the dashboard service running on 443 port number but the dashboard service is running on clusterIP
+NAMESPACE              NAME                        TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                  AGE
+kubernetes-dashboard   dashboard-metrics-scraper   ClusterIP   10.101.109.204   <none>        8000/TCP                 2m6s
+kubernetes-dashboard   kubernetes-dashboard        ClusterIP   10.109.208.185   <none>        443/TCP                  2m6s
+root@k8smaster:~#
+  ##we need to modify the same using nodeport
+  root@k8smaster:~# kubectl -n kubernetes-dashboard edit svc kubernetes-dashboard
+    #it is showign clusterip change the same to the node port at the third last line 
+      selector:
+    k8s-app: kubernetes-dashboard
+  sessionAffinity: None
+  type: ClusterIP #this need to be changes to NodePort
+status:
+  loadBalancer: {}
+#after the change it will show like this 
+    sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}
+~
+###now copy the node machine ip and port number with https it will show the dashboard it required a token to login 
+  root@k8smaster:~# vi user.yml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+root@k8smaster:~# vi role.yml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kubernetes-dashboard
+root@k8smaster:~# kubectl apply -f user.yml
+serviceaccount/admin-user created
+root@k8smaster:~# kubectl apply -f role.yml
+clusterrolebinding.rbac.authorization.k8s.io/admin-user created
+root@k8smaster:~#
+##finally generate the token
+  kubectl -n kubernetes-dashboard create token admin-user
+
+
+
