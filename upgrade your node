@@ -1,0 +1,15 @@
+##to upgrade the node you need to first drain the node. 
+##when you drain your node
+ 669  kubectl get nodes
+#check all the pods are running in the particular node
+  670  kubectl get pod -o wide
+#drain the worker node once drain all the pod will be evicted and started on different vm 
+  671  kubectl drain k8snode --ignore-daemonsets --delete-emptydir-data
+  672  kubectl drain k8snode --ignore-daemonsets --delete-emptydir-data --force
+##kubectl get nodes will show that the node is in maintance mode scheduling disabled
+  673  kubectl get nodes
+###now all the pod is running on different node
+  674  kubectl get pod -o wide
+####lets uncordon the worker node
+kubectl uncordon k8snode
+kubectl upgrade node
