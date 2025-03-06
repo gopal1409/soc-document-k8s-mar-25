@@ -1,0 +1,48 @@
+###lets create a namespace
+root@k8smaster:~# kubectl create ns project-hamster
+namespace/project-hamster created
+root@k8smaster:~# kubectl get ns
+#lets create jane as service and give access to project-hamster
+root@k8smaster:~# kubectl -n project-hamster create sa jane
+serviceaccount/jane created
+#this will not show the jane as service account as it is querying in default namespace
+root@k8smaster:~# kubectl get sa
+NAME      SECRETS   AGE
+default   0         46h
+root@k8smaster:~# kubectl -n project-hamster get sa
+NAME      SECRETS   AGE
+default   0         81s
+jane      0         22s
+root@k8smaster:~#
+######
+now we will create a role if you look into the role inside the role we have define verbs and applied to object 
+#############################
+kubectl -n project-hamster create role -h
+root@k8smaster:~# kubectl -n project-hamster create role janerole --verb=create --resource=secret --resource=configmap
+role.rbac.authorization.k8s.io/janerole created
+root@k8smaster:~# kubectl -n project-hamster describe role janerole
+Name:         janerole
+Labels:       <none>
+Annotations:  <none>
+PolicyRule:
+  Resources   Non-Resource URLs  Resource Names  Verbs
+  ---------   -----------------  --------------  -----
+  configmaps  []                 []              [create]
+  secrets     []                 []              [create]
+root@k8smaster:~#
+##we need to attach the permission to service account jane 
+#we need to do binding rolebinding 
+sa + role
+ 697  kubectl -n project-hamster create rolebinding -h
+#lets bind the role name of the role binding is malibu
+root@k8smaster:~# kubectl -n project-hamster create rolebinding malibu --role janerole --serviceaccount project-hamster:jane
+rolebinding.rbac.authorization.k8s.io/malibu created
+#######################
+lets test it using can-i
+##############################
+ 703  kubectl -n project-hamster auth can-i create secret --as system:serviceaccount:project-hamster:jane
+707  kubectl -n project-hamster auth can-i delete secret --as system:serviceaccount:project-hamster:jane
+  708  kubectl -n project-hamster auth can-i create configmap --as system:serviceaccount:project-hamster:jane
+  709  kubectl -n project-hamster auth can-i create deployment --as system:serviceaccount:project-hamster:jane
+
+
