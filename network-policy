@@ -129,6 +129,28 @@ NAME       READY   STATUS    RESTARTS   AGE   IP                NODE      NOMINA
 backend    1/1     Running   0          24m   192.168.145.223   k8snode   <none>           <none>
 frontend   1/1     Running   0          24m   192.168.145.222   k8snode   <none>           <none>
 root@k8smaster:~# kubectl -n prod exec frontend -- curl 192.168.145.223
+#lets open the dns port 
+ 754  vi deny.yml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: prod #when you create a network policy it will always be on a particular namespace
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  egress:
+    - ports:
+      - port: 53
+        protocol: TCP
+      - port: 53
+        protocol: UDP
+
+  755  kubectl apply -f deny.yml
+#now check the dns resultion is working 
+  756  kubectl -n prod exec frontend -- curl backend
 
 
 
