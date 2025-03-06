@@ -1,0 +1,26 @@
+## 572  apt install etcd-client
+  573  etcdctl
+##first we need to install etcdctl utility
+root@k8smaster:~# ETCDCTL_API=3 etcdctl snapshot save /tmp/etcd-backup.db
+#press control c to come out 
+99% it will fail etcdctl command line need to authenticate withy oru k8s using server.crt server.key ca.crt
+###where is this certicate are location
+in master machine all the master component are running from this particular folder 
+root@k8smaster:~# cd /etc/kubernetes/manifests/
+root@k8smaster:/etc/kubernetes/manifests# ls
+etcd.yaml  kube-apiserver.yaml  kube-controller-manager.yaml  kube-scheduler.yaml
+root@k8smaster:/etc/kubernetes/manifests
+#####
+580  cat etcd.yaml
+  581  cat kube-apiserver.yaml | grep etcd
+###########################this will take the backup of etcd 
+ 583  ETCDCTL_API=3 etcdctl snapshot save /tmp/etcd-backup.db --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key
+  584  ls /tmp
+  585  ls -la /tmp
+####once you take the backup of etcd 
+#now we created the test pod but it is created after takeing the backup so when i restore it this will not be visible
+root@k8smaster:/etc/kubernetes/manifests# kubectl run test --image=nginx
+pod/test created
+root@k8smaster:/etc/kubernetes/manifests# kubectl get pod -l run=test
+NAME   READY   STATUS    RESTARTS   AGE
+test   1/1     Running   0          21s
