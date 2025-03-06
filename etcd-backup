@@ -24,3 +24,76 @@ pod/test created
 root@k8smaster:/etc/kubernetes/manifests# kubectl get pod -l run=test
 NAME   READY   STATUS    RESTARTS   AGE
 test   1/1     Running   0          21s
+#lets move the master node manifest file to a previous directory 
+ 591  cd /etc/kubernetes/manifests/
+  592  ls
+ #this will show all the master node manifest file 
+  594  mv * ..
+##once we move now all the master node manifest file is in previous directory 
+  595  ls
+##the master node will stop working 
+root@k8smaster:/etc/kubernetes/manifests# kubectl get nodes
+The connection to the server 172.31.97.27:6443 was refused - did you specify the right host or port?
+root@k8smaster:/etc/kubernetes/manifests# crictl ps
+##lets restore the backup in a new directory
+root@k8smaster:/etc/kubernetes/manifests# ETCDCTL_API=3 etcdctl snapshot restore /tmp/etcd-backup.db --data-dir=/var/lib/etcd-backup --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key
+2025-03-06 07:18:12.663104 I | mvcc: restore compact to 64718
+2025-03-06 07:18:12.674703 I | etcdserver/membership: added member 8e9e05c52164694d [http://localhost:2380] to cluster cdf818194e3a8c32
+root@k8smaster:/etc/kubernetes/manifests# ls /var/lib/etcd-backup/
+member
+root@k8smaster:/etc/kubernetes/manifests#
+#########once restored 
+#we will change the path of the etcd to new 
+root@k8smaster:/etc/kubernetes/manifests# vi /etc/kubernetes/etcd.yaml
+#once you open the file go to the end 
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes/pki/etcd
+      type: DirectoryOrCreate
+    name: etcd-certs
+  - hostPath:
+      path: /var/lib/etcd #host path is pointing to the olde location we need to put the new location 
+      type: DirectoryOrCreate
+    name: etcd-data
+
+############change the host path to 
+  - hostPath:
+      path: /var/lib/etcd-backup #change this path 
+      type: DirectoryOrCreate
+    name: etcd-data
+###save the file 
+#now we will move all the control panel yaml file back to the manifest directory 
+root@k8smaster:/etc/kubernetes/manifests# mv ../*.yaml .
+root@k8smaster:/etc/kubernetes/manifests# ls
+etcd.yaml  kube-apiserver.yaml  kube-controller-manager.yaml  kube-scheduler.yaml
+root@k8smaster:/etc/kubernetes/manifests#
+##now you can see all the yaml file 
+root@k8smaster:/etc/kubernetes/manifests# crictl ps
+WARN[0000] Config "/etc/crictl.yaml" does not exist, trying next: "/usr/bin/crictl.yaml"
+WARN[0000] runtime connect using default endpoints: [unix:///run/containerd/containerd.sock unix:///run/crio/crio.sock unix:///var/run/cri-dockerd.sock]. As the default settings are now deprecated, you should set the endpoint instead.
+WARN[0000] Image connect using default endpoints: [unix:///run/containerd/containerd.sock unix:///run/crio/crio.sock unix:///var/run/cri-dockerd.sock]. As the default settings are now deprecated, you should set the endpoint instead.
+CONTAINER           IMAGE               CREATED             STATE               NAME                      ATTEMPT             POD ID              POD                                 NAMESPACE
+3bf3f9da6b233       d8e673e7c9983       19 seconds ago      Running             kube-scheduler            0                   681757a659b33       kube-scheduler-k8smaster            kube-system
+ce7c86fcf2f00       b6a454c5a800d       19 seconds ago      Running             kube-controller-manager   0                   8a5bea5c6c854       kube-controller-manager-k8smaster   kube-system
+753cecebf8b2e       85b7a174738ba       19 seconds ago      Running             kube-apiserver            0                   788d901a992b3       kube-apiserver-k8smaster            kube-system
+5c2ef7bd49c7b       a9e7e6b294baf       20 seconds ago      Running             etcd                      0                   f2037e7dc6b05       etcd-k8smaster                      kube-system
+58b69c8a40545       feb26d4585d68       3 hours ago         Running             calico-node               2                   cdd901b74b785       calico-node-ndp8l                   kube-system
+2c343e4c3cb40       f1332858868e1       3 hours ago         Running             kube-proxy                2                   d8ea3057c9102       kube-proxy-lht4f                    kube-system
+####lets check the pod is back or not 
+kubectl get pod
+root@k8smaster:/etc/kubernetes/manifests# kubectl get pod -l run=test
+No resources found in default namespace.
+
+WARN[0000] Config "/etc/crictl.yaml" does not exist, trying next: "/usr/bin/crictl.yaml"
+WARN[0000] runtime connect using default endpoints: [unix:///run/containerd/containerd.sock unix:///run/crio/crio.sock unix:///var/run/cri-dockerd.sock]. As the default settings are now deprecated, you should set the endpoint instead.
+WARN[0000] Image connect using default endpoints: [unix:///run/containerd/containerd.sock unix:///run/crio/crio.sock unix:///var/run/cri-dockerd.sock]. As the default settings are now deprecated, you should set the endpoint instead.
+CONTAINER           IMAGE               CREATED             STATE               NAME                ATTEMPT             POD ID              POD                        NAMESPACE
+58b69c8a40545       feb26d4585d68       3 hours ago         Running             calico-node         2                   cdd901b74b785       calico-node-ndp8l          kube-system
+2c343e4c3cb40       f1332858868e1       3 hours ago         Running             kube-proxy          2                   d8ea3057c9102       kube-proxy-lht4f           kube-system
+c142f697d82cc       85b7a174738ba       3 hours ago         Running             kube-apiserver      2                   16afcc70e1c8f       kube-apiserver-k8smaster   kube-system
+root@k8smaster:/etc/kubernetes/manifests#
+#################
+lets restore the snapshot in a new directory 
+######################################
+
+
