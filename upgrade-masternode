@@ -1,0 +1,47 @@
+##to upgrade the master node 
+apt-get update
+###lets get the node information 
+root@k8smaster:~# kubectl get nodes
+NAME        STATUS   ROLES           AGE   VERSION
+k8smaster   Ready    control-plane   45h   v1.32.2
+k8snode     Ready    <none>          45h   v1.32.2
+k8snode1    Ready    <none>          45h   v1.32.2
+####we need to drain the node. 
+root@k8smaster:~# kubectl drain k8smaster --ignore-daemonsets --delete-emptydir-data
+node/k8smaster already cordoned
+Warning: ignoring DaemonSet-managed Pods: kube-system/calico-node-ndp8l, kube-system/kube-proxy-lht4f
+node/k8smaster drained
+#now the node will be scheduled disable means no more new activityy in your k8s cluster
+root@k8smaster:~# kubectl get nodes
+NAME        STATUS                     ROLES           AGE   VERSION
+k8smaster   Ready,SchedulingDisabled   control-plane   45h   v1.32.2
+k8snode     Ready                      <none>          45h   v1.32.2
+k8snode1    Ready                      <none>          45h   v1.32.2
+root@k8smaster:~#
+#then kill the api server and sleep for 20 second
+root@k8smaster:~# killall -s SIGTERM kube-apiserver
+root@k8smaster:~# sleep 20
+#####################
+ 656  apt-cache show kubeadm
+  657  apt-cache show kubeadm | grep 1.32
+  658  apt-mark hold kubelet kubectl
+  659  apt-mark unhold kubeadm
+  660  apt-get install kubeadm=1.32.2-1.1 kubectl=1.32.2-1.1 kubelet=1.32.2-1.1
+  661  kubeadm upgrade plan
+#####once upgraded 
+root@k8smaster:~# kubectl get nodes
+NAME        STATUS                     ROLES           AGE   VERSION
+k8smaster   Ready,SchedulingDisabled   control-plane   45h   v1.32.2
+k8snode     Ready                      <none>          45h   v1.32.2
+k8snode1    Ready                      <none>          45h   v1.32.2
+#once upgrade do not forget to uncordon the node so that scheduling will be enabled
+root@k8smaster:~# kubectl uncordon k8smaster
+node/k8smaster uncordoned
+root@k8smaster:~# kubectl get nodes
+NAME        STATUS   ROLES           AGE   VERSION
+k8smaster   Ready    control-plane   45h   v1.32.2
+k8snode     Ready    <none>          45h   v1.32.2
+k8snode1    Ready    <none>          45h   v1.32.2
+root@k8smaster:~#
+###this way we will upgrade the master node 
+
