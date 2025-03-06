@@ -90,3 +90,76 @@ kubectl get statefulset
  ##it will show all the three pod in a range 
  ##against all the three pod you will also have three different storage also
   542  kubectl get pvc
+#probes 
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  selector:
+    matchLabels:
+      app: postgres # has to match .spec.template.metadata.labels
+  serviceName: "postgres"
+  replicas: 3 # by default is 1
+  minReadySeconds: 10 # by default is 0
+  template:
+    metadata:
+      labels:
+        app: postgres # has to match .spec.selector.matchLabels
+    spec:
+       initContainers:
+        - name: postgres-init
+          image: postgres
+          command:
+          - bash
+          - "-c"
+          - |
+            set -ex
+            [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
+            ordinal=${BASH_REMATCH[1]}
+            if [[ $ordinal -eq 0 ]]; then
+              printf "I am the primary"
+            else
+              printf "I am a read-only replica"
+            fi
+       containers:
+       - name: postgres
+         image: postgres
+         env:
+          - name: POSTGRES_USER
+            value: postgres
+          - name: POSTGRES_PASSWORD
+            value: postgres
+         ports:
+         - containerPort: 5432
+           name: web
+         volumeMounts:
+          - name: db
+            mountPath: /var/lib/postgresql/data
+         livenessProbe: #it will check the health of your postgress db
+           exec:
+             command: 
+               - "sh"
+               - "-c"
+               - "pg_isready --host $POD_IP"
+           intialDelaySecond: 30
+           periodSecond: 5
+           timeoutSecond: 5
+         readinessProbe:  #i know that my database will take time to start 30 second
+          exec: #then only start sending sending the traffic
+             command: 
+               - "sh"
+               - "-c"
+               - "pg_isready --host $POD_IP"
+          intialDelaySecond: 30
+          periodSecond: 5
+          timeoutSecond: 5
+  volumeClaimTemplates:
+  - metadata:
+      name: db
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "local-path"
+      resources:
+        requests:
+          storage: 1Gi
