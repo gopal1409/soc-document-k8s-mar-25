@@ -1,0 +1,80 @@
+#lets apply the frontend 
+507  vi frontend.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: usermgmt-restapp
+  name: usermgmt-restapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: usermgmt-restapp
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: usermgmt-restapp
+    spec:
+      containers:
+      - image: stacksimplify/kube-usermanagement-microservice:1.0.0
+        name: usermgmt-restapp
+        ports:
+        - containerPort: 8095
+        env:
+          - name: DB_HOSTNAME
+            value: "mysql"
+          - name: DB_PORT
+            value: "3306"
+          - name: DB_USERNAME
+            value: "root"
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: password
+      
+  508  kubectl apply -f frontend.yml
+##lets verfy the frontend pod is runing or not 
+  509  kubectl get pod
+  510  kubectl logs usermgmt-restapp-569df8698-x9n9r
+  511  kubectl get pod
+###if it is running we need to 
+login to the sql database and a table will be created the user table
+  511  kubectl get pod
+#change the sql pod 
+  512  kubectl exec -it mysql-9b5968599-nrrv6 -- /bin/bash
+
+
+#login to the mysql database password is dbpassword11
+root@mysql-9b5968599-nrrv6:/# mysql -u root -p
+Enter password:
+##once you login chgeck the database with a table 
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| socemp             |
+| usermgmt           
+##use the db 
+mysql> use  usermgmt;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+##in the db you can see the table which is being created by the frontend 
+mysql> show tables;
++--------------------+
+| Tables_in_usermgmt |
++--------------------+
+| users              |
++--------------------+
+1 row in set (0.00 s
+###select the table 
+
