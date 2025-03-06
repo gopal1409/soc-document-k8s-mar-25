@@ -1,0 +1,10 @@
+  716  kubectl create ns prod
+  717  kubectl -n prod run frontend --image=nginx
+  718  kubectl -n prod run backend --image=nginx
+  719  kubectl -n prod get pod
+  
+  721  kubectl -n prod expose pod frontend --port 80
+  722  kubectl -n prod expose pod backend --port 80
+  723  kubectl -n prod exec frontend -- curl backend
+  724  kubectl -n prod exec backend -- curl frontend
+##it shows that internally inside the namespace or external to your namespace also they can communicate with each other
