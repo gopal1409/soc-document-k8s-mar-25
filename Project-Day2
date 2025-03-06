@@ -78,3 +78,13 @@ mysql> show tables;
 1 row in set (0.00 s
 ###select the table 
 
+##finalyl expose the application outside your k8s cluster
+exit
+exit
+##################
+ 514  kubectl expose deploy usermgmt-restapp --port=8095 --type=NodePort
+  515  kubectl get svc
+###once exposed check the node where your application is running 
+kubectl get pod -o wide
+###once you get the node change the dns name and port number you will see the application health
+http://lab-as-14393.lc.cl-labs.springpeople.com:31464/usermgmt/health-status
