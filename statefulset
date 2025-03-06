@@ -1,0 +1,92 @@
+#lets provision the storage dynamically
+kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.24/deploy/local-path-storage.yaml
+root@k8smaster:~# kubectl get sc
+NAME         PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+local-path   rancher.io/local-path   Delete          WaitForFirstConsumer   false                  2m19s
+root@k8smaster:~#
+##once it is being created 
+#before your create a statefulset you need to ensure you need create service first. 
+ 526  vi postgressrv.yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  
+  ports:
+    - port: 5432
+  clusterIP: None
+  selector:
+    app: postgres
+    ##once you created the service 
+  527  kubectl apply -f postgressrv.yml
+  528  kubectl get svc
+  ##you can verify the same
+  postgres           ClusterIP   None             <none>        5432/TCP         50s
+###now lets create the statefulset 
+ 533  vi statefulset.yml
+ apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  selector:
+    matchLabels:
+      app: postgres # has to match .spec.template.metadata.labels
+  serviceName: "postgres"
+  replicas: 3 # by default is 1
+  minReadySeconds: 10 # by default is 0
+  template:
+    metadata:
+      labels:
+        app: postgres # has to match .spec.selector.matchLabels
+    spec:
+       initContainers:
+        - name: postgres-init
+          image: postgres
+          command:
+          - bash
+          - "-c"
+          - |
+            set -ex
+            [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
+            ordinal=${BASH_REMATCH[1]}
+            if [[ $ordinal -eq 0 ]]; then
+              printf "I am the primary"
+            else
+              printf "I am a read-only replica"
+            fi
+       containers:
+       - name: postgres
+         image: postgres
+         env:
+          - name: POSTGRES_USER
+            value: postgres
+          - name: POSTGRES_PASSWORD
+            value: postgres
+         ports:
+         - containerPort: 5432
+           name: web
+         volumeMounts:
+          - name: db
+            mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+  - metadata:
+      name: db
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "local-path"
+      resources:
+        requests:
+          storage: 1Gi
+
+  534  kubectl apply -f statefulset.yml
+##############
+kubectl get statefulset
+##wait for few minutes till all the three pod come back
+ 541  kubectl get pod
+ ##it will show all the three pod in a range 
+ ##against all the three pod you will also have three different storage also
+  542  kubectl get pvc
